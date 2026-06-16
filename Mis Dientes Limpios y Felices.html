@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¡Mis Dientes Limpios y Felices!</title>
+    <style>
+        :root {
+            --azul-fondo: #E3F2FD;
+            --azul-oscuro: #0D47A1;
+            --verde-correcto: #4CAF50;
+            --rojo-incorrecto: #F44336;
+            --blanco: #FFFFFF;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--azul-fondo);
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: var(--azul-oscuro);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        p.instruccion {
+            font-size: 1.4rem;
+            font-weight: bold;
+            background: var(--blanco);
+            padding: 10px 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: inline-block;
+        }
+
+        /* Contenedor de Juegos */
+        .pantalla {
+            background: var(--blanco);
+            width: 100%;
+            max-width: 800px;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+            text-align: center;
+            display: none;
+        }
+
+        .pantalla.activa {
+            display: block;
+        }
+
+        /* Botones Grandes y Accesibles */
+        .btn-grande {
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 6px #0b7dda;
+            transition: all 0.2s;
+            margin-top: 20px;
+        }
+
+        .btn-grande:active {
+            box-shadow: 0 2px #0b7dda;
+            transform: translateY(4px);
+        }
+
+        /* JUEGO 1: CEPILLADO */
+        .boca-contenedor {
+            position: relative;
+            width: 320px;
+            height: 240px;
+            margin: 30px auto;
+            background: #FFCDD2;
+            border: 10px solid #EF9A9A;
+            border-radius: 50% / 40%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .diente {
+            width: 70px;
+            height: 70px;
+            background: #FFF;
+            border-radius: 15px;
+            margin: 10px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: inset 0 -5px 0 #E0E0E0;
+        }
+
+        .suciedad {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: #8D6E63; /* Color marrón de suciedad */
+            border-radius: 15px;
+            opacity: 0.9;
+            cursor: pointer;
+            transition: opacity 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+        }
+
+        .suciedad:hover {
+            opacity: 0.5;
+        }
+
+        /* JUEGO 2: ALIMENTOS */
+        .alimentos-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .tarjeta-alimento {
+            background: #F5F5F5;
+            border: 4px solid #E0E0E0;
+            border-radius: 15px;
+            padding: 20px;
+            font-size: 4rem; /* Iconos grandes (Emojis) */
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .tarjeta-alimento:hover {
+            transform: scale(1.05);
+        }
+
+        .nombre-alimento {
+            font-size: 1.5rem;
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* Mensajes de feedback */
+        .feedback {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-top: 20px;
+            height: 40px;
+        }
+
+        .correcto { color: var(--verde-correcto); }
+        .incorrecto { color: var(--rojo-incorrecto); }
+
+        /* Navegación de mapas/pasos */
+        .pasos-indicador {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 15px;
+        }
+
+        .paso-circulo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #BDBDBD;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .paso-circulo.activo {
+            background: var(--azul-oscuro);
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🦷 ¡Dientes Fuertes y Sanos! 🦷</h1>
+        <p class="instruccion" id="texto-instruccion">¡Vamos a jugar!</p>
+    </header>
+
+    <div class="pasos-indicador">
+        <div class="paso-circulo activo" id="ind-1">1</div>
+        <div class="paso-circulo" id="ind-2">2</div>
+        <div class="paso-circulo" id="ind-3">🎉</div>
+    </div>
+
+    <div class="pantalla activa" id="pantalla-inicio">
+        <h2 style="font-size: 2rem; margin-bottom: 20px;">¿Estás listo para cuidar tu sonrisa?</h2>
+        <span style="font-size: 6rem;">😁🪥</span>
+        <br>
+        <button class="btn-grande" onclick="cambiarPantalla('pantalla-lavar', 1)">¡SÍ, EMPEZAR! ▶️</button>
+    </div>
+
+    <div class="pantalla" id="pantalla-lavar">
+        <h2 style="font-size: 1.6rem;">¡Limpia los dientes! Toca las manchas marrones para quitarlas.</h2>
+        
+        <div class="boca-contenedor">
+            <div class="diente">
+                <span>🦷</span>
+                <div class="suciedad" onclick="limpiarDiente(this)">👾</div>
+            </div>
+            <div class="diente">
+                <span>🦷</span>
+                <div class="suciedad" onclick="limpiarDiente(this)">👾</div>
+            </div>
+            <div class="diente">
+                <span>🦷</span>
+                <div class="suciedad" onclick="limpiarDiente(this)">👾</div>
+            </div>
+        </div>
+
+        <div class="feedback" id="feedback-lavar"></div>
+        <button class="btn-grande" id="btn-siguiente-1" style="display:none;" onclick="cambiarPantalla('pantalla-comida', 2)">¡Siguiente juego! ➡️</button>
+    </div>
+
+    <div class="pantalla" id="pantalla-comida">
+        <h2 style="font-size: 1.6rem;">¿Qué comida es BUENA para tus dientes? ¡Toca una!</h2>
+        
+        <div class="alimentos-grid">
+            <div class="tarjeta-alimento" onclick="seleccionarComida(true, this)">
+                🍏
+                <span class="nombre-alimento">Manzana</span>
+            </div>
+            <div class="tarjeta-alimento" onclick="seleccionarComida(false, this)">
+                🍬
+                <span class="nombre-alimento">Caramelo</span>
+            </div>
+            <div class="tarjeta-alimento" onclick="seleccionarComida(true, this)">
+                🥛
+                <span class="nombre-alimento">Leche</span>
+            </div>
+            <div class="tarjeta-alimento" onclick="seleccionarComida(false, this)">
+                🍩
+                <span class="nombre-alimento">Dona</span>
+            </div>
+        </div>
+
+        <div class="feedback" id="feedback-comida"></div>
+        <button class="btn-grande" id="btn-siguiente-2" style="display:none;" onclick="cambiarPantalla('pantalla-final', 3)">¡Terminar! ➡️</button>
+    </div>
+
+    <div class="pantalla" id="pantalla-final">
+        <h2 style="font-size: 2.5rem; color: var(--verde-correcto);">¡LO HICISTE EXCELENTE! ⭐</h2>
+        <p style="font-size: 1.5rem; margin-top: 15px;">Tus dientes están limpios, brillantes y felices.</p>
+        <span style="font-size: 7rem; display:block; margin: 20px 0;">👑🏆😁</span>
+        <button class="btn-grande" onclick="reiniciarJuego()">¡Jugar otra vez! 🔄</button>
+    </div>
+
+    <script>
+        let dientesSucios = 3;
+
+        // Cambiar entre secciones del juego
+        function cambiarPantalla(idPantalla, paso) {
+            // Ocultar todas las pantallas
+            document.querySelectorAll('.pantalla').forEach(p => p.classList.remove('activa'));
+            // Mostrar la pantalla seleccionada
+            document.getElementById(idPantalla).classList.add('activa');
+
+            // Actualizar indicador de pasos
+            document.querySelectorAll('.paso-circulo').forEach(c => c.classList.remove('activo'));
+            if(paso === 1) {
+                document.getElementById('ind-1').classList.add('activo');
+                document.getElementById('texto-instruccion').innerText = "¡A cepillar los dientes!";
+            } else if(paso === 2) {
+                document.getElementById('ind-2').classList.add('activo');
+                document.getElementById('texto-instruccion').innerText = "Elige comida saludable";
+            } else if(paso === 3) {
+                document.getElementById('ind-3').classList.add('activo');
+                document.getElementById('texto-instruccion').innerText = "¡Ganaste!";
+            }
+        }
+
+        // Lógica del juego de cepillado
+        function limpiarDiente(elementoMancha) {
+            elementoMancha.style.display = 'none';
+            dientesSucios--;
+
+            const feedback = document.getElementById('feedback-lavar');
+            
+            if(dientesSucios > 0) {
+                feedback.innerHTML = "<span class='correcto'>¡Bien! ¡Sigue limpiando! ✨</span>";
+            } else {
+                feedback.innerHTML = "<span class='correcto'>¡Dientes limpios y blancos! 🌟</span>";
+                document.getElementById('btn-siguiente-1').style.display = 'inline-block';
+            }
+        }
+
+        // Lógica del juego de alimentos
+        function seleccionarComida(esSaludable, elemento) {
+            const feedback = document.getElementById('feedback-comida');
+            
+            // Resetear bordes de las tarjetas de comida
+            document.querySelectorAll('.tarjeta-alimento').forEach(t => t.style.borderColor = '#E0E0E0');
+
+            if(esSaludable) {
+                elemento.style.borderColor = 'var(--verde-correcto)';
+                feedback.innerHTML = "<span class='correcto'>¡Sí! Es saludable para tus dientes. 🦷💚</span>";
+                document.getElementById('btn-siguiente-2').style.display = 'inline-block';
+            } else {
+                elemento.style.borderColor = 'var(--rojo-incorrecto)';
+                feedback.innerHTML = "<span class='incorrecto'>Tiene mucha azúcar. ¡Hace daño! 👾🛑</span>";
+            }
+        }
+
+        // Reiniciar todo el juego
+        function reiniciarJuego() {
+            dientesSucios = 3;
+            // Mostrar manchas de nuevo
+            document.querySelectorAll('.suciedad').forEach(s => s.style.display = 'flex');
+            // Ocultar botones de siguiente
+            document.getElementById('btn-siguiente-1').style.display = 'none';
+            document.getElementById('btn-siguiente-2').style.display = 'none';
+            // Limpiar textos de feedback
+            document.getElementById('feedback-lavar').innerText = '';
+            document.getElementById('feedback-comida').innerText = '';
+            // Resetear colores de comida
+            document.querySelectorAll('.tarjeta-alimento').forEach(t => t.style.borderColor = '#E0E0E0');
+            // Ir al inicio
+            cambiarPantalla('pantalla-inicio', 1);
+            document.getElementById('texto-instruccion').innerText = "¡Vamos a jugar!";
+        }
+    </script>
+</body>
+</html>
